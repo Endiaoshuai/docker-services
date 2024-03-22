@@ -42,6 +42,18 @@ services:
         dir /data
         requirepass ${REDIS_PASSWORD}
 
+  minio:
+    image: minio/minio
+    volumes:
+      - minio_data:/data
+    environment:
+      MINIO_ROOT_USER: minio
+      MINIO_ROOT_PASSWORD: secret_minio
+    command: server /data --console-address ":9001"
+    ports:
+      - 9000:9000
+      - 9001:9001
+
   elasticsearch:
     container_name: elasticsearch
     restart: always
@@ -61,41 +73,47 @@ services:
     environment:
       - I18N_LOCALE=${KIBANA_LANGUAGE}
 
-  mailhog:
-    container_name: mailhog
-    image: mailhog/mailhog
+  facebook_ads_manager_bullboard:
+    container_name: bullboard
+    image: addono/bull-board
     restart: always
     ports:
-      - ${MAILHOG_HOST}:${MAILHOG_SMTP_PORT}:1025
-      - ${MAILHOG_HOST}:${MAILHOG_WEB_PORT}:8025
-
-  minio:
-    image: minio/minio
-    container_name: minio
-    ports:
-      - "9000:9000"
-      - "9090:9090"
-    restart: always
-    command: server /data --console-address ":9000" --address ":9090"
+      - 3004:3000
     environment:
-      MINIO_ROOT_USER: ${MINIO_ROOT_USER}
-      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD}
-    logging:
-      options:
-        max-size: "50M" # 最大文件上传限制
-        max-file: "10"
-      driver: json-file
+      REDIS_HOST: ${FACEBOOK_AD_MANAGER_BULL_HOST}
+      REDIS_PORT: 6379
+      REDIS_PASSWORD: ${FACEBOOK_AD_MANAGER_BULL_PASSWORD}
+      REDIS_DB: 10
+      REDIS_USE_TLS: 'false'
+      BULL_PREFIX: bull
+  bullboard:
+    container_name: bullboard
+    image: addono/bull-board
+    restart: always
+    ports:
+      - 3003:3000
+    environment:
+      REDIS_HOST: host.docker.internal
+      REDIS_PORT: 63791
+      # REDIS_PASSWORD: secret
+      REDIS_USE_TLS: 'false'
+      BULL_PREFIX: bull
+
+  node-dev:
+    container_name: node
+    image: node:16
+    ports:
+      - 3000:3000
     volumes:
-      - ./minio/data:/data
-
-  rabbitMQ:
-    image: rabbitmq:management
-    container_name: "rabbitmq"
+      - ~/Projects:/app
+    # command: bash
     environment:
-      - RABBITMQ_DEFAULT_USER=admin
-      - RABBITMQ_DEFAULT_PASS=secret
-    ports:
-      # AMQP protocol port
-      - '5672:5672'
-      # HTTP management UI
-      - '15672:15672'
+      - NODE_ENV=development
+    networks:
+      - app-network
+
+networks:
+  app-network:
+
+volumes:
+  minio_data:
