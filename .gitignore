@@ -38,4 +38,7 @@ Temporary Items
 # End of https://www.toptal.com/developers/gitignore/api/dotenv,macos
 
 minio/
-redis_2/
+redis/
+postgres16/
+.hexo
+ghost

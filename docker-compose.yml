@@ -27,6 +27,17 @@ services:
     environment:
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
 
+  postgres16:
+    container_name: postgres16
+    image: ghcr.io/xudongcc/postgresql:16
+    restart: always
+    ports:
+      - 54321:5432
+    volumes:
+      - ./postgres16/data:/bitnami/postgresql
+    environment:
+      POSTGRESQL_PASSWORD: ${POSTGRES_PASSWORD}
+
   redis:
     container_name: redis
     image: redis:alpine
@@ -112,8 +123,32 @@ services:
     networks:
       - app-network
 
+  hexo:
+    image: node:latest
+    volumes:
+      - .hexo:/hexo
+    working_dir: /hexo
+    command: bash -c "npm install hexo-cli -g && hexo init . && npm install && hexo server"
+    ports:
+      - "4000:4000"
+
+  ghost:
+    image: ghost:latest
+    volumes:
+      - ./ghost:/var/lib/ghost/content
+    environment:
+      - url=http://localhost:2368
+      - database__client=mysql
+      - database__connection__host=mysql
+      - database__connection__user=root
+      - database__connection__password=secret
+      - database__connection__database=ghost
+    ports:
+      - "3001:2368"
+
 networks:
   app-network:
+
 
 volumes:
   minio_data:
