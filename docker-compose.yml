@@ -8,7 +8,7 @@ services:
       - --default-authentication-plugin=mysql_native_password
       - --character-set-server=utf8mb4
       - --collation-server=utf8mb4_unicode_ci
-    restart: always
+    # restart: always
     ports:
       - ${MYSQL_HOST}:${MYSQL_PORT}:3306
     volumes:
@@ -19,7 +19,7 @@ services:
   postgres:
     container_name: postgres
     image: postgres:12-alpine
-    restart: always
+    # restart: always
     ports:
       - ${POSTGRES_HOST}:${POSTGRES_PORT}:5432
     volumes:
@@ -30,7 +30,7 @@ services:
   postgres16:
     container_name: postgres16
     image: ghcr.io/xudongcc/postgresql:16
-    restart: always
+    # restart: always
     ports:
       - 54321:5432
     volumes:
@@ -41,7 +41,7 @@ services:
   redis:
     container_name: redis
     image: redis:alpine
-    restart: always
+    # restart: always
     entrypoint: sh /docker-entrypoint.sh
     ports:
       - ${REDIS_HOST}:${REDIS_PORT}:6379
@@ -55,7 +55,7 @@ services:
 
   elasticsearch:
     container_name: elasticsearch
-    restart: always
+    # restart: always
     image: docker.elastic.co/elasticsearch/elasticsearch:${ELASTICSEARCH_VERSION}
     ports:
       - ${ELASTICSEARCH_HOST}:${ELASTICSEARCH_PORT}:9200
@@ -75,7 +75,7 @@ services:
   mailhog:
     container_name: mailhog
     image: mailhog/mailhog
-    restart: always
+    # restart: always
     ports:
       - ${MAILHOG_HOST}:${MAILHOG_SMTP_PORT}:1025
       - ${MAILHOG_HOST}:${MAILHOG_WEB_PORT}:8025
@@ -86,7 +86,7 @@ services:
     ports:
       - "9000:9000"
       - "9001:9090"
-    restart: always
+    # restart: always
     command: server /data --console-address ":9000" --address ":9090"
     environment:
       MINIO_ROOT_USER: ${MINIO_ROOT_USER}
@@ -114,7 +114,7 @@ services:
   bullboard:
     container_name: bullboard
     image: addono/bull-board
-    restart: always
+    # restart: always
     ports:
       - 3003:3000
     environment:
