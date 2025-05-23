@@ -27,6 +27,17 @@ services:
     environment:
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
 
+  postgres16:
+    container_name: postgres16
+    image: ghcr.io/xudongcc/postgresql:16
+    restart: always
+    ports:
+      - 54321:5432
+    volumes:
+      - ./postgres16/data:/bitnami/postgresql
+    environment:
+      POSTGRESQL_PASSWORD: ${POSTGRES_PASSWORD}
+
   redis:
     container_name: redis
     image: redis:alpine
@@ -74,7 +85,7 @@ services:
     container_name: minio
     ports:
       - "9000:9000"
-      - "9090:9090"
+      - "9001:9090"
     restart: always
     command: server /data --console-address ":9000" --address ":9090"
     environment:
@@ -99,3 +110,16 @@ services:
       - '5672:5672'
       # HTTP management UI
       - '15672:15672'
+
+  bullboard:
+    container_name: bullboard
+    image: addono/bull-board
+    restart: always
+    ports:
+      - 3003:3000
+    environment:
+      REDIS_HOST: host.docker.internal
+      REDIS_PORT: 63791
+      # REDIS_PASSWORD: secret
+      REDIS_USE_TLS: 'false'
+      BULL_PREFIX: bull
