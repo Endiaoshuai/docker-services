@@ -20,6 +20,11 @@ services:
     container_name: postgres
     image: postgres:12-alpine
     # restart: always
+    command: >
+      postgres
+      -c shared_preload_libraries=pg_stat_statements
+      -c track_activity_query_size=2048
+      -c track_io_timing=on
     ports:
       - ${POSTGRES_HOST}:${POSTGRES_PORT}:5432
     volumes:
@@ -37,6 +42,9 @@ services:
       - ./postgres16/data:/bitnami/postgresql
     environment:
       POSTGRESQL_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRESQL_SHARED_PRELOAD_LIBRARIES: "pgaudit,pg_stat_statements,pg_partman_bgw,pg_jieba"
+      POSTGRESQL_TRACK_ACTIVITY_QUERY_SIZE: "2048"
+      POSTGRESQL_TRACK_IO_TIMING: "on"
 
   redis:
     container_name: redis
@@ -84,10 +92,10 @@ services:
     image: minio/minio
     container_name: minio
     ports:
-      - "9000:9000"
-      - "9001:9090"
-    # restart: always
-    command: server /data --console-address ":9000" --address ":9090"
+        - "9000:9000"  # 映射对象存储服务 API 端口
+        - "9090:9090"  # 映射管理控制台端口
+      # restart: always
+    command: server /data --console-address ":9090" --address ":9000"
     environment:
       MINIO_ROOT_USER: ${MINIO_ROOT_USER}
       MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD}
